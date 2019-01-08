@@ -1,0 +1,30 @@
+{
+  "name": "21dian",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "crypto-js": "^3.1.9-1",
+    "js.perlin": "0.0.1",
+    "mysql": "^2.13.0",
+    "socket.io": "^1.3.5",
+    "socket.io-client": "^1.3.5",
+    "winston": "^1.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin":"app.js",
+  "pkg": {
+   "scripts": [
+    "*.js"
+   ],
+   "assets": [
+    "**/*.pem",
+    "**/*.p12",
+    "**/*.key"
+   ]
+  },
+  "author": "",
+  "license": "ISC"
+}
