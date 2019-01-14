@@ -37,7 +37,7 @@ var Player = require("../game/Player");
 var playerType = require("../define").playerType;
 var playerState = require("../define").playerState;
 var gameConst = require("../define").gameConst;
-var winston = require('winston');
+var logger = require('log4js').getLogger();
 
 var SUIT_D = 0;       // 方片(Diamond)
 var SUIT_C = 1;       // 梅花(Club)
@@ -118,7 +118,7 @@ p.playerIn = function(userItem, type){
         android.androidUserSink.setAndroidPlayer(player);
     }
 
-    winston.info("====%s:%s进入桌子", names[type], userItem.nickname);
+    logger.info("====%s:%s进入桌子", names[type], userItem.nickname);
 
     this.players[userItem.chairID] = player;
 
@@ -226,7 +226,7 @@ p.producePlayerCards = function(){
         var data = {id: i, cardData: finalBaseCards};
         this.playerCards.push(data);
     }
-    // winston.info("=====playerCards", this.playerCards);
+    // logger.info("=====playerCards", this.playerCards);
 };
 
 // 开始发牌
@@ -291,7 +291,7 @@ p.deal = function(){
             dealID: DEAL_ID,
             allPlayerCurCards: allPlayerCurCards
         });
-        winston.info("====allPlayerCurCards", allPlayerCurCards);
+        logger.info("====allPlayerCurCards", allPlayerCurCards);
 
         var delay = dealCard.num >= 10 ? numPlaying + 2 : numPlaying;
         this.startTimer(function(){
@@ -366,17 +366,17 @@ p.sourceCardsWhenNormal = function(){
 p.hereWeGo = function(dealCard){
     var dealer = this.players[DEAL_CHAIR_ID];
     var sourceCards = dealer.getSourceCards();
-    winston.info("游戏开始,庄家明牌为:", dealCard);
+    logger.info("游戏开始,庄家明牌为:", dealCard);
 
     // 庄家明牌是A,触发是否买保险。再判断庄家是否是黑杰克通吃;都结束后玩家才开始补牌
     if (dealCard.num == CARD_ACE) {
-        winston.info("庄家明牌是A,发送是否购买保险提示");
+        logger.info("庄家明牌是A,发送是否购买保险提示");
         this.sendMessageInsurance({});
     } else if (sourceCards.result.isBlackJack) {
-        winston.info("庄家是黑杰克,通吃!");
+        logger.info("庄家是黑杰克,通吃!");
         this.turnOfDealer(dealer, true, true);
     } else {
-        winston.info("第一个玩家行动");
+        logger.info("第一个玩家行动");
         var nextPlayer = this.findNextPlayer();
         this.nextPlayerAction(nextPlayer);
     }
@@ -437,7 +437,7 @@ p.onHitHandler = function(userItem){
         var card = sourceCards.baseCards.splice(0, 1)[0];
         curCards.baseCards.push(card);
 
-        winston.info("%s要牌后的手牌为:", userItem.nickname, curCards);
+        logger.info("%s要牌后的手牌为:", userItem.nickname, curCards);
 
         var result = Util.countCard(curCards.baseCards, false, false);
         var canDouble = allCards.length == 1 && curCards.baseCards.length == 2;
@@ -452,7 +452,7 @@ p.onHitHandler = function(userItem){
                 this.nextPlayerAction(player);
             }.bind(this), 1);
 
-            winston.info("%s五小龙、爆牌或加倍,下一个玩家行动", userItem.nickname);
+            logger.info("%s五小龙、爆牌或加倍,下一个玩家行动", userItem.nickname);
         } else {
             // 重新计时
             this.startCountdown(player);
@@ -507,7 +507,7 @@ p.nextPlayerAction = function(player){
     var isDealAct = nextPlayer.getType() == playerType.TYPE_DEALER;
 
     var names = ["庄家", "真人", "机器人"];
-    winston.info("当前行动玩家%s:%s,id:%d", names[nextPlayer.type], userItem.nickname, userItem.userID);
+    logger.info("当前行动玩家%s:%s,id:%d", names[nextPlayer.type], userItem.nickname, userItem.userID);
 
     // 轮到庄家行动,则游戏结束
     if (isDealAct) {
@@ -521,7 +521,7 @@ p.nextPlayerAction = function(player){
         if (result.isBlackJack || result.isFiveDragon || result.isBust) {
             // 停牌次数加1
             player.doneCountIncrease();
-            winston.info("%s是黑杰克、五小龙或爆牌,下一家行动", userItem.nickname);
+            logger.info("%s是黑杰克、五小龙或爆牌,下一家行动", userItem.nickname);
             return this.nextPlayerAction(nextPlayer);
         } else {
             // 只有一副牌且没补过牌才能双倍.
@@ -686,7 +686,7 @@ p.gameOver = function(dealer, resultD){
                     } else {
                         var playerRank = resultP.ranks[0];
                         var dealRank = resultD.ranks[0];
-                        winston.info("====normal====", playerRank, dealRank);
+                        logger.info("====normal====", playerRank, dealRank);
                         // 如果玩家是黑杰克或五小龙,则赢1.5
                         if (resultP.isBlackJack || resultP.isFiveDragon) {
                             mul += 1.5;
@@ -739,7 +739,7 @@ p.gameOver = function(dealer, resultD){
             scores[chairID] = player.score;
             player.betNum = 0;
             player.insuranceNum = 0;
-            winston.info("====mul", chairID, mul, player.score);
+            logger.info("====mul", chairID, mul, player.score);
         }
     }
 
@@ -767,7 +767,7 @@ p.gameOver = function(dealer, resultD){
     }
     // 5秒后重新开始下注
     this.startTimer(this.restart.bind(this), 3);
-    winston.info("=====game over======", this.cards.length);
+    logger.info("=====game over======", this.cards.length);
 };
 
 // 重新开始
@@ -840,7 +840,7 @@ p.onDoubleHandler = function(userItem){
         } else {
             // 当前出手的玩家且还没停牌
             player.isDouble = true;
-            winston.info("%s加倍,下注加倍,补一张牌后强制停牌,下一个玩家出手", userItem.nickname);
+            logger.info("%s加倍,下注加倍,补一张牌后强制停牌,下一个玩家出手", userItem.nickname);
             // 下注加一份
             this.betNumIncrease(userItem);
             // 要牌一张
@@ -896,10 +896,10 @@ p.insuranceEnd = function(){
     this.isInsuranceEnd = true;
 
     if (sourceCards.result.isBlackJack) {
-        winston.info("庄家是黑杰克,通吃!");
+        logger.info("庄家是黑杰克,通吃!");
         this.turnOfDealer(dealer, true, true);
     } else {
-        winston.info("庄家不是黑杰克,吃掉保险。第一个玩家行动");
+        logger.info("庄家不是黑杰克,吃掉保险。第一个玩家行动");
         this.sendMessageToAll(subGameMSG.TYPE_IS_BLACK_JACK, {
             flag: 0,
             insurances: this.insurances
@@ -1046,7 +1046,7 @@ p.saveToStock = function(buyIn, checkOut){
 
     config.nowTax += tax;
     config.nowStock += deltaLeft;
-    winston.info("库存变化:%d,抽水:%d,库存剩余:%d", deltaLeft, tax, config.nowStock);
+    logger.info("库存变化:%d,抽水:%d,库存剩余:%d", deltaLeft, tax, config.nowStock);
 
     // 保存库存
     config.saveConfig();
@@ -1060,7 +1060,7 @@ p.writeUserScore = function(userItem, delta, resultDesc){
     // 计算税收
     var tax = this.tableFrame.calculateRevenue(chairID, delta);
 
-    winston.info(userItem.nickname + "写分数:玩家剩余%d, 输赢%d, 税收%d",
+    logger.info(userItem.nickname + "写分数:玩家剩余%d, 输赢%d, 税收%d",
         player.score, delta - tax, tax);
 
     // 真正写分到数据库
@@ -1156,7 +1156,7 @@ p.cardMaker = function(){
         }
     }
 
-    // winston.info("生成8副扑克牌", this.cards);
+    // logger.info("生成8副扑克牌", this.cards);
     return cards;
 };
 
@@ -1170,7 +1170,7 @@ p.shuffle = function(cards){
         cards[i] = temp;
     }
 
-    // winston.info("洗牌", cards);
+    // logger.info("洗牌", cards);
     return cards;
 };
 

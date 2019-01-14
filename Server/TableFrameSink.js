@@ -4,7 +4,7 @@
 var gameConst = require("./define").gameConst;
 var subGameMSG = require("./SubGameMSG").subGameMSG;
 var gameCMD = require("./define").gameCMD;
-var winston = require("winston");
+var logger = require('log4js').getLogger();
 var Util = require("./Util");
 var GameLogic = require("./game/GameLogic");
 var Player = require("./game/Player");
@@ -116,7 +116,7 @@ p.onEventSendGameScene = function (chairID, userItem, gameStatus) {
  */
 p.onGameMessageEvent = function (subCMD, data, userItem) {
     try {
-        winston.info("====", userItem.nickname, subCMD, data);
+        logger.info("====", userItem.nickname, subCMD, data);
         if(this.isCooling) return true;
         switch (subCMD) {
             case subGameMSG.TYPE_WAGER:
@@ -153,7 +153,7 @@ p.onGameMessageEvent = function (subCMD, data, userItem) {
                 return false;
         }
     } catch (err) {
-        winston.info("%s游戏时触发bug:%s", userItem.nickname, err);
+        logger.info("%s游戏时触发bug:%s", userItem.nickname, err);
     }
     return true;
 };

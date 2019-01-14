@@ -1,26 +1,8 @@
 // //游戏服务器启动文件
 
-var winston = require('winston');
-
-var info = winston.info;
-
-winston.info = function () {
-    var argArray = [new Date().toLocaleString()];
-    for (var i = 0; i < arguments.length; i++)
-        argArray.push(arguments[i]);
-
-    info.apply(this, argArray);
-}.bind(winston.info);
-
-var debug = winston.debug;
-
-winston.debug = function () {
-    var argArray = [new Date().toLocaleString()];
-    for (var i = 0; i < arguments.length; i++)
-        argArray.push(arguments[i]);
-
-    debug.apply(this, argArray);
-}.bind(winston.debug);
+var log4js = require('log4js');
+log4js.configure('./config/log4js.json');
+var logger = log4js.getLogger();
 
 var gameconfig = require("./gameconfig.js");
 
@@ -30,7 +12,7 @@ var gameconfig = require("./gameconfig.js");
     //初始化
 
     if (process.argv.length >= 3) {
-         winston.info("从" + process.argv[2] + "读取配置");
+        logger.info("从" + process.argv[2] + "读取配置");
 
         var config = require(process.argv[2]);
 
@@ -43,27 +25,26 @@ var gameconfig = require("./gameconfig.js");
         }
     }
     else {
-        winston.info("没有外部配置文件， 读取默认的 gameconfig.js");
+        logger.info("没有外部配置文件， 读取默认的 gameconfig.js");
     }
 
     var GameServer = require('./GameServer');
     var gameServer = new GameServer();
 
-    winston.add(winston.transports.File, {filename: 'game' + gameconfig["RoomID"] + '.log'});
 
     if (gameconfig["Single"] == true) {
-        winston.info("使用单机模式中...");
+        logger.info("使用单机模式中...");
         gameServer.start();
     }
     else {
-        winston.info("连接协调登录服务器中...");
+        logger.info("连接协调登录服务器中...");
         gameServer.connectLogonCorres();
     }
 
 
     process.on('uncaughtException', function (e) {
 
-        winston.error("error uncaughtException\t", e.stack);
+        logger.error("error uncaughtException\t", e.stack);
     });
 
 

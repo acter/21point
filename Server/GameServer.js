@@ -9,17 +9,16 @@ var loginCorresIO = require('socket.io-client');
 var fs = require('fs');
 var https = require('https');
 var AndroidManager = require('./AndroidManager');
-var ControlConfig = require('./Config').controlConfig;
-var winston = require('winston');
+var Config = require('./Config').stockControl;
+var logger = require('log4js').getLogger();
 var define = require('./define');
 var ttutil = require("./ttutil");
 var gameCMD = define.gameCMD;
 var gameEvent = define.gameEvent;
 var gameConst = define.gameConst;
 var corresCMD = define.corresCMD;
-var Encrypt = require("../../extend/Encrypt");
 
-
+var socketMgr = require("./socketMgr")
 /**
  * 服务器类
  * @constructor
@@ -32,20 +31,21 @@ function GameServer() {
     this.roomInfo = null;
     this.androidManager = null;
     this.serverSocket = null;
+    this.userMap = {}
 
 
     if (gameconfig["Single"] == true) {
         this.roomInfo = {};
-        this.roomInfo.RoomID = 1;				//房间ID
-        this.roomInfo.GameName = "游戏模板";				//游戏名
-        this.roomInfo.RoomName = "游戏模板";				//房间名
-        this.roomInfo.GameMode = 0;				//房间模式
-        this.roomInfo.TableCount = 1;		//桌子数
-        this.roomInfo.ChairCount = 6;		//一张桌子椅子数
-        this.roomInfo.Revenue = 0;			//税收千分比
-        this.roomInfo.MinSitScore = 1;				//最小进入分数
-        this.roomInfo.Cheat = 0;			//是否是防作弊模式
-        this.PORT = 1236;				//游戏端口
+        this.roomInfo.RoomID = 1;               //房间ID
+        this.roomInfo.GameName = "游戏模板";                //游戏名
+        this.roomInfo.RoomName = "游戏模板";                //房间名
+        this.roomInfo.GameMode = 2;             //房间模式
+        this.roomInfo.TableCount = 1;       //桌子数
+        this.roomInfo.ChairCount = 100;     //一张桌子椅子数
+        this.roomInfo.Revenue = 0;          //税收千分比
+        this.roomInfo.MinSitScore = 1;              //最小进入分数
+        this.roomInfo.Cheat = 0;            //是否是防作弊模式
+        this.PORT = 1236;               //游戏端口
 
         this.init();
         var self = this;
@@ -64,14 +64,16 @@ function GameServer() {
                         info.faceID = i % 5 + 1;
                         info.tableID = 0;
                         info.chairID = i;
-                        info.score = 1230045;
+                        info.score = 300000000;
                         info.nickname = "大鱼" + i;
                         info.memberOrder = i;
                         info.gender = 0;
                         info.isAndroid = 1;
                         info.sex = i % 2;
 
-                        self.onLCUserSitDown(info);
+
+
+                        self.onLCUserSitDown(null, info);
                     }
 
                 })(i), 2000);
@@ -111,17 +113,17 @@ p.init = function () {
 /**
  * 连接登录协调服
  */
-p.connectLogonCorres = function () {
-    this.logCorresSock = loginCorresIO.connect(gameconfig["LoginAddr"], {query:'roomID=' + gameconfig["RoomID"]});
+p.connectLogonCorres = function() {
+    this.logCorresSock = loginCorresIO.connect(gameconfig["LoginAddr"]);
     var self = this;
     this.logCorresSock.on("connect", function (data) {
-        winston.info("连接协调登录服成功");
+        logger.info("连接协调登录服成功");
         //请求房间信息
-        self.sendLCData(corresCMD.ROOM_INFO, {roomID: gameconfig["RoomID"]});
+        self.sendLCData("RoomInfo", {roomID: gameconfig["RoomID"]});
     });
 
-    this.logCorresSock.on("disconnect", function () {
-        winston.info("协调登录服断开");
+    this.logCorresSock.on("disconnect", function (reason) {
+        logger.info("协调登录服断开",reason);
         self.stop();
     });
 
@@ -134,39 +136,54 @@ p.connectLogonCorres = function () {
  * @param eventName
  * @param msg
  */
-p.sendLCData = function (eventName, msg) {
+p.sendLCData = function(eventName, msg) {
     if (!gameconfig["Single"]) {
-        this.logCorresSock.emit(Encrypt.packetEvent(eventName, this.logCorresSock), Encrypt.packetData(msg, this.logCorresSock));
+        this.logCorresSock.emit("msg", eventName, {}, msg);
     }
 };
 
 /**
  * 监听登录协调服事件
  */
-p.onCorresEvent = function () {
+p.onCorresEvent = function() {
 
-    //房间信息事件
-    this.logCorresSock.on(Encrypt.packetEvent2(corresCMD.ROOM_INFO), this.onLCSocketEvent.bind(this, corresCMD.ROOM_INFO, "onLCRoomInfo"));
-    //用户消息
-    this.logCorresSock.on(Encrypt.packetEvent2(corresCMD.USER_SIT_DOWN), this.onLCSocketEvent.bind(this, corresCMD.USER_SIT_DOWN, "onLCUserInfo"));
-    //机器人离开
-    this.logCorresSock.on(Encrypt.packetEvent2(corresCMD.USER_LEAVE), this.onLCSocketEvent.bind(this, corresCMD.USER_LEAVE, "onLCUserLeave"));
-    //用户写分
-    this.logCorresSock.on(Encrypt.packetEvent2(corresCMD.WRITE_SCORE), this.onLCSocketEvent.bind(this, corresCMD.WRITE_SCORE, "onLCUserScore"));
-    //修改用户权重
-    this.logCorresSock.on(Encrypt.packetEvent2(corresCMD.MODIFY_USER_WEIGHT), this.onLCSocketEvent.bind(this, corresCMD.MODIFY_USER_WEIGHT, "onLCModifyUserWeight"));
-    //获取房间控制配置
-    this.logCorresSock.on(Encrypt.packetEvent2(corresCMD.GET_ROOM_CONTROL), this.onLCSocketEvent.bind(this, corresCMD.GET_ROOM_CONTROL, "onLCGetRoomControl"));
-    //修改房间控制配置
-    this.logCorresSock.on(Encrypt.packetEvent2(corresCMD.MODIFY_ROOM_CONTROL), this.onLCSocketEvent.bind(this, corresCMD.MODIFY_ROOM_CONTROL, "onLCModifyRoomControl"));
+
+    this.logCorresSock.on("serverMsg", this.onServerMsg.bind(this));
 };
+//服务器消息
+p.onServerMsg = function(eventName, session, data) {
 
-p.onLCSocketEvent = function (eventName, funcName, data) {
-
-
-    if (this[funcName] != null && typeof(this[funcName]) == "function") {
-        data = Encrypt.decryptData2(data);
-        this[funcName](data);
+    logger.info("onServerMsg", eventName, session, data)
+    if (eventName == "RoomInfo") {
+        //房间信息事件
+        this.onLCRoomInfo(data)
+    } else if (eventName == "UserSitDown") {
+        //用户坐下
+        this.onLCUserSitDown(session, data)
+    } else if (eventName == "UserStandUp") {
+        //用户起立
+        this.onLCUserLeave(session, data)
+    } else if (eventName == "UserLeave") {
+        //用户离开
+        this.onLCUserLeave(session, data)
+    } else if (eventName == "WriteScore") {
+        //用户写分
+        this.onLCUserScore(data)
+    } else if (eventName == "ModifyUserWeight") {
+        //修改用户权重
+        this.onLCModifyUserWeight(data)
+    } else if (eventName == "GetRoomControl") {
+        //获取房间控制配置
+        this.onLCGetRoomControl(data)
+    } else if (eventName == "ModifyRoomControl") {
+        //修改房间控制配置
+        this.onLCModifyRoomControl(data)
+    } else if (eventName == "onUserOffline") {
+        //玩家掉线
+        this.onUserOffline(session, data)
+    } else if (eventName == "onUserRelogin") {
+        //玩家重新上线
+        this.onUserRelogin(session, data)
     }
 };
 
@@ -175,7 +192,7 @@ p.onLCSocketEvent = function (eventName, funcName, data) {
  * @param data
  */
 p.onLCModifyUserWeight = function (data) {
-    winston.info("修改用户权重， userID: " + data.userID + " weight: " + data.weight);
+    logger.info("修改用户权重， userID: " + data.userID + " weight: " + data.weight);
     var userItem = this.getUserItemByUserID(data.userID);
     //有用户且 weight是数字
     if (userItem != null && !isNaN(parseFloat(data.weight))) {
@@ -188,17 +205,17 @@ p.onLCModifyUserWeight = function (data) {
  * @param data
  */
 p.onLCGetRoomControl = function (data) {
-    winston.info("获取房间控制配置");
+    logger.info("获取房间控制配置");
 
     try {
-        var config = ControlConfig.onGetContronlCofig();
+        var config = Config.onGetContronlCofig();
         this.sendLCData(corresCMD.GET_ROOM_CONTROL, {msgIndex: data.msgIndex, config: config});
     }
     catch (e) {
-        winston.error("-----------------------------------------------");
-        winston.error("获取房间控制配置出错");
-        winston.error(e);
-        winston.error("-----------------------------------------------");
+        logger.error("-----------------------------------------------");
+        logger.error("获取房间控制配置出错");
+        logger.error(e);
+        logger.error("-----------------------------------------------");
         this.sendLCData(corresCMD.GET_ROOM_CONTROL, {
             msgIndex: data.msgIndex,
             config: [{key: "errDesc", value: "子游戏获取房间控制配置出错", desc: "出错信息", attr: "r"}]
@@ -212,24 +229,81 @@ p.onLCGetRoomControl = function (data) {
  * @param data
  */
 p.onLCModifyRoomControl = function (data) {
-    winston.info("修改房间控制配置" + JSON.stringify(data));
+    logger.info("修改房间控制配置" + JSON.stringify(data));
 
     try {
-        var ret = ControlConfig.onModifyControlConfig(data.config);
+        var ret = Config.onModifyControlConfig(data.config);
         var retData = {};
         if (!ret) retData.errMsg = "修改房间控制配置失败";
         else retData.success = true;
         this.sendLCData(corresCMD.MODIFY_ROOM_CONTROL, {msgIndex: data.msgIndex, data: retData});
     }
     catch (e) {
-        winston.error("-----------------------------------------------");
-        winston.error("保存房间控制配置出错");
-        winston.error(e);
-        winston.error("-----------------------------------------------");
+        logger.error("-----------------------------------------------");
+        logger.error("保存房间控制配置出错");
+        logger.error(e);
+        logger.error("-----------------------------------------------");
         this.sendLCData(corresCMD.MODIFY_ROOM_CONTROL, {msgIndex: data.msgIndex, data: {errMsg: "子游戏出错,请联系该子游戏作者"}});
     }
 
 };
+
+//玩家掉线
+p.onUserOffline = function(session, data) {
+    logger.info("用户掉线 ", session, data);
+
+    if (data == null) {
+        return false;
+    }
+    var userID = data.userID
+    var userItem = this.getUserItemByUserID(userID)
+
+    if (!userItem) {
+        logger.error("未找到玩家")
+        return false
+    }
+
+    var tableID = userItem.tableID
+    var table = this.tableFrame[tableID]
+    if (!table) {
+         logger.error("onUserOffline 未找到玩家桌子")
+         return
+    }
+
+    table.onUserOffline(userItem)
+    return true
+
+
+};
+
+
+
+//玩家重连
+p.onUserRelogin = function(session, data) {
+    logger.info("玩家重连 ", session, data);
+
+    if (data == null) {
+        return false;
+    }
+    var userID = data.userID
+    var userItem = this.getUserItemByUserID(userID)
+
+    if (!userItem) {
+        logger.error("未找到玩家")
+        return false
+    }
+
+    userItem.session = data.session
+    
+    this.sendUserInfoPacket(userItem)
+    var tableID = userItem.tableID
+    var table = this.tableFrame[tableID]
+    if (table) {
+        table.onUserRelogin(userItem)
+    }
+    return true
+};
+
 
 /**
  * 得到要下发到游戏的配置
@@ -255,7 +329,7 @@ p.onLCUserScore = function (data) {
 
     var userItem = this.getUserItemByUserID(userID);
     if (userItem == null || score == null) {
-        //winston.info ("更变分数失败，用户分数或者用户分数为NULL");
+        //logger.info ("更变分数失败，用户分数或者用户分数为NULL");
         return false;
     }
 
@@ -264,118 +338,113 @@ p.onLCUserScore = function (data) {
     return true;
 };
 
-/**
- * 机器人人离开    LC --> S
- * @param data
- */
-p.onLCUserLeave = function (data) {
-    var userID = data["userID"];
-    var userItem = this.getUserItemByUserID(userID);
-
-    if (userItem) {
-        winston.info("用户离开,ID:" + data["userID"] + "是否是机器人: " + userItem.isAndroid + " 昵称 " + userItem.getNickname());
-        this.deleteUserItem(null, userItem, false);
-    }
-
-
-};
-
-
-/**
- * 用户消息
- */
-p.onLCUserInfo = function (data) {
-    //有错误 关闭客户端
-    if (data.errMsg != null) {
-        winston.info("接受用户信息为空，用户ID为： " + data.userID);
-        var userItem = this.getUserItemByUserID(data.userID);
-        this.sendRequestFailure(userItem, data.errMsg);
-        //那边也不在房间里， 所以不必通知大厅
-        this.deleteUserItem(null, userItem, false);
-        return false;
-    }
-
-    if (data == null) return false;
-
-    var info = {};
-    info.userID = data["userID"];
-    info.gameID = data["gameID"];
-    info.faceID = data["faceID"];
-    info.tableID = data["tableID"];
-    info.chairID = data["chairID"];
-    info.score = data["score"];
-    info.nickname = data["nickname"];
-    info.sex = data["gender"];
-    info.isAndroid = data["isAndroid"];
-    info.memberOrder = data["memberOrder"];
-    info.weight = data["weight"];                   //权重
-
-    //体验房调整
-    if (gameconfig["FreeMode"]) {
-        info.score = gameconfig["FreeModeMoney"];
-    }
-
-    this.onLCUserSitDown(info);
-};
 
 /**
  * 用户坐下   LC --> S
  * @param data
  * @returns {boolean}
  */
-p.onLCUserSitDown = function (data) {
-    winston.info("接受信息： ");
-    winston.info(data);
+p.onLCUserSitDown = function(session, data) {
+    logger.info("用户请求坐下 ", session, data);
 
     if (data == null) {
         return false;
     }
+    var userID = data.userID
+    var userSession = data.session
 
-    var userItem;
+    var userItem = this.getUserItemByUserID(userID)
+
+    if (userItem) {
+        logger.error("玩家已在座位上 ，请退出先")
+        return false
+    }
 
     if (data.isAndroid == true) {
         userItem = this.createAndroid(data);
     } else {
-        //先清桌子 判重
-        this.clearTablesUserByID(data.userID);
-
-        userItem = this.getUserItemByUserID(data.userID);
-        if (userItem != null) {
-            userItem.setInfo(data);
-        }
+        userItem = new ServerUserItem(userSession, this)
+        userItem.setInfo(data);        
     }
 
-    if (userItem == null) {
-        winston.info("onLCUserSitDown 用户不存在啦");
+    //如果他了tableID为0xffff的话，自动寻位
+    var tableID = data['tableID'];
+    var chairID = data['chairID'];
+    if (tableID == null || chairID == null) {
+        logger.error("非法桌子椅子号", userItem.userID, data);
+        return false
+    }
+
+    if (tableID < 0 || tableID >= this.roomInfo["TableCount"]) {
+        logger.error("非法桌子号", userItem.userID, data);
         return false;
     }
 
-    var sitDownSuccess;
-    if (data.isAndroid == true) {
-        sitDownSuccess = this.onSitDownEvent({
-            tableID: userItem.tableID,
-            chairID: userItem.chairID
-        }, null, userItem);
+    if (chairID < 0 || chairID >= this.roomInfo["ChairCount"]) {
+        logger.error("非法椅子号", userItem.userID, data);
+        return false;
+    }
+
+    if (this.tableFrame[tableID].getTableUserItem(chairID)) {
+        logger.info("坐下失败， 这个位置上已经有人了");
+        return false;
+    }
+
+    var table = this.tableFrame[tableID]
+   
+    //坐下处理
+    var sitSuccess = table.performSitDownAction(chairID, userItem);
+    if (data.tableSetting && !table.getTableConfig()) {
+
+        table.setTableConfig(data.tableSetting) //第一个人来配置桌子
+        logger.info("桌子配置", data.tableSetting)
+    }
+    if (sitSuccess) {
+        //发送给用户这桌的玩家
+        this.sendUserInfoPacket(userItem);
+        //通知这桌其他用户
+        this.sendUserEnter(userItem);
     } else {
-        sitDownSuccess = this.onSitDownEvent({
-            tableID: userItem.tableID,
-            chairID: userItem.chairID
-        }, userItem.socket, null);
+        logger.error("非法椅子号", userItem.userID, data);
+        return false
     }
 
-    if (!sitDownSuccess) {
-        //坐下失败断开链接
-        this.deleteUserItem(userItem.socket, userItem, true);
-        winston.info("坐下失败");
-        return false;
-    }
-    //通知客户端成功
+    this.userMap[userID] = userItem //
+
+    this.sendLCData("SitDownSuccess", {
+        userID: userItem.userID,
+        roomID: this.roomInfo.RoomID,
+        tableID: userItem.tableID,
+        chairID: userItem.chairID,
+        tableSetting: table.getTableConfig()
+    });
+        //通知客户端成功
     this.sendData(userItem, gameCMD.MDM_GR_LOGON, gameCMD.SUB_GR_LOGON_SUCCESS, {
         userID: userItem.userID,
         gameConfig: this.getGameConfig()
     });
-    winston.info("坐下成功");
-    return true;
+    logger.info("坐下成功");
+
+    return true
+};
+
+
+/**
+ * 机器人人离开    LC --> S
+ * @param data
+ */
+p.onLCUserLeave = function(session, data) {
+    var userID = data["userID"];
+    logger.error("onLCUserLeave:" + userID);
+    var userItem = this.getUserItemByUserID(userID);
+    if (!userItem) {
+        logger.error("用户不在房间内 离开失败:" + data["userID"]);
+    } else {
+        logger.info("用户离开,ID:" + data["userID"] + "是否是机器人: " + userItem.isAndroid + " 昵称 " + userItem.getNickname());
+        this.deleteUserItem(userItem);
+
+
+    }
 };
 
 /**
@@ -397,17 +466,15 @@ p.createAndroid = function (info) {
  * @returns {*}
  */
 p.onLCRoomInfo = function (data) {
+
     if (data.errMsg) {
-        winston.error(data.errMsg);
+        logger.error(data.errMsg);
         return false;
     }
 
     //登入消息
     var crtRoom = null;
-
     var roomID = "roomID";
-
-
     for (var i = 0; i < data.length; ++i) {
         if (parseInt(gameconfig["RoomID"]) == data[i][roomID]) {
             crtRoom = data[i];
@@ -419,7 +486,7 @@ p.onLCRoomInfo = function (data) {
     }
 
 
-    winston.info(crtRoom);
+    logger.info(crtRoom);
 
     this.roomInfo = {};
     this.roomInfo.RoomID = crtRoom["roomID"];				//房间ID
@@ -439,7 +506,7 @@ p.onLCRoomInfo = function (data) {
 
     this.init();
     this.start();
-    winston.info("游戏服务器启动成功");
+    logger.info("游戏服务器启动成功");
     //返回启动成功消息
     this.sendLCData(corresCMD.OPEN_OK, crtRoom);
 };
@@ -448,77 +515,160 @@ p.onLCRoomInfo = function (data) {
 /**
  * 开启服务器 消息格式 {mainCMD:x, subCMD:x, data:{xxx}}
  */
-p.start = function () {
+p.start = function() {
 
-
-    if (gameconfig["nohttps"]) {
-        this.serverSocket = io.listen(this.PORT);
-    }
-    else {
-        var options = {
-            // key: fs.readFileSync('../../key/ryans-key.pem'),
-            // cert: fs.readFileSync('../../key/ryans-cert.pem'),
-            key: fs.readFileSync('../../key/subgame.key'),
-            cert: fs.readFileSync('../../key/subgame.pem'),
-            // dhparam:"2048"
-            // pfx: fs.readFileSync("../../key/subgame.pfx"),
-            // passphrase: fs.readFileSync("../../key/pfx-password.txt"),
-        };
-        //安全协议
-        var app = https.createServer(options);
-        this.serverSocket = io.listen(app);
-        app.listen(this.PORT);
-    }
-
-
-    winston.info("端口号" + this.PORT);
-
-
+    this.serverSocket = io.listen(this.PORT);
+    logger.info("端口号" + this.PORT);
     var that = this;
     //连接成功
-    this.serverSocket.on('connection', function (socket) {
-        winston.info("新socket链接成功");
+    this.serverSocket.on("connection", this.onConnect.bind(this))
 
-        socket._981_msgID = -1; //网络包id
-        //网络消息
-        socket.on('message', function (data) {
-
-            try {
-                var obj = require("../../extend/Encrypt").decryptData(data, socket);
-
-                if (obj) {
-                    that.onClientSocketEvent(obj, socket, null);
-                }
-            } catch (e) {
-                winston.error(data);
-                winston.error(e.stack)
-            }
-        });
-        //断开消息
-        socket.on('disconnect', function (data) {
-            that.onUserShut(data, socket);
-        });
-        //错误消息
-        socket.on('error', function (error) {
-            winston.error(error.stack);
-        });
-    });
     //异步事件处理
     this.onAsynEvent();
 };
+//新连接
+p.onConnect = function(socket) {
+
+    var socketID = socketMgr.addSocket(this.namespace, socket)
+
+
+    socket.on("msg", this.onMessage.bind(this, socketID))
+    socket.on("game", this.onMessage.bind(this, socketID))
+    socket.on("disconnect", this.onDisConnect.bind(this, socketID));
+    socket.on("error", this.onError.bind(this, socketID));
+
+    if (gameconfig["Single"]) { //单机模式 连接就是直接坐下了
+        var tableFrame = this.tableFrame[0];
+        var i = Object.keys(this.userMap).length;
+        var info = {};
+
+        var session = {
+            sid: null,
+            socketID
+        }
+        info.session = session
+        info.userID = 123 + i;
+        info.gameID = 123 + i;
+        info.faceID = 1;
+        info.tableID = 0;
+        info.chairID = tableFrame.getFreeChairID();
+        info.score = 2000012;
+        info.nickname = "小鱼" + i;
+        info.gender = 0;
+        info.isAndroid = 0;
+        info.memberOrder = 10;
+        this.onLCUserSitDown(session, info);
+        console.info("用户登录ID: " + info.userID + " \n主动请求");
+
+    }
+
+};
+
+
+
+
+//socket错误
+p.onError = function(socketID, err) {
+    this.onDisConnect(socketID)
+    logger.error("onError", err)
+};
+
+//断开连接
+p.onDisConnect = function(socketID, reason) {
+    //this.onUserShut(data, socket);
+    logger.error("断开连接", socketID, reason)
+};
+
+p.onMessage = function(socketID, eventName, data) {
+
+    logger.info("onMessage", socketID, eventName,  data)
+    try {
+        var func = this[eventName]
+        if (func) {
+            logger.info(eventName, data)
+            func.bind(this)(data)
+        } else {
+            logger.error("未找到句柄", socketID, eventName, session, data)
+        }
+    } catch (err) {
+        logger.error("------------------------------------------------------------------");
+        logger.error(data);
+        logger.error(err);
+        logger.error("------------------------------------------------------------------");
+    }
+};
+
+
+p.auth = function(data, session) {
+    logger.info("auth", session, data)
+    var sid = data.sid
+    socketMgr.authOK(sid, session.socketID)
+
+
+};
+/**
+ * 通信主函数
+ * @param data {mainCMD:x, subCMD:x, data:{xxx}}
+ * @param session 机器人时为null
+ * @param androidUserItem 真人时为null
+ * @returns {boolean}
+ */
+p.onClientSocketEvent = function(data,  androidUserItem) {
+    logger.error("11111 收到客户端消息", data)
+    var ret = false;
+    var userID = data.userID
+    var userItem = this.getUserItemByUserID(userID)
+
+    if (!userItem) {
+        logger.error("错误,用户并未登录该子游戏")
+        return
+    }
+
+    try {
+        switch (data['mainCMD']) {
+            //用户命令
+            case gameCMD.MDM_GR_USER:
+                ret = this.onClientUserEvent( data['subCMD'], data, userItem, androidUserItem);
+                break;
+                //游戏命令
+            case gameCMD.MDM_GF_GAME:
+                ret = this.onClientGameEvent( data['subCMD'], data, userItem, androidUserItem);
+                break;
+                //框架命令
+            case gameCMD.MDM_GF_FRAME:
+                ret = this.onClientFrameEvent( data['subCMD'], data, userItem, androidUserItem);
+                break;
+        }
+    } catch (err) {
+        //捕获异常错误处理
+        try {
+            this.deleteUserItem(userItem, androidUserItem, true);
+            logger.error(err.stack);
+        } catch (err2) {
+            logger.error(err2.stack);
+        }
+
+    }
+
+    //如果返回值错误断开链接
+    if (!ret) {
+        this.deleteUserItem(userItem, androidUserItem, true);
+    }
+};
+
 
 /**
  * 停服
  */
-p.stop = function () {
-    winston.info("游戏服务器停止");
+p.stop = function() {
+    logger.info("游戏服务器停止1");
     this.removeAllListeners();
     var i, userItem;
     //删除玩家
     for (i = 0; i < this.serverUserArray.length; ++i) {
         userItem = this.serverUserArray[i];
         if (!userItem.isAndroid) {
-            userItem.socket.disconnect();
+            //userItem.socket.disconnect();
         }
     }
     this.serverUserArray.length = 0;
@@ -536,20 +686,20 @@ p.stop = function () {
 /**
  * 用户关闭
  * @param data
- * @param socket
+ * @param session
  * @returns {boolean}
  */
 p.onUserShut = function (data, socket) {
     var userItem = this.getUserItem(socket);
     //
     if (userItem == null) {
-        winston.info("user shut user is null");
-        socket.disconnect();
+        logger.info("user shut user is null");
+        //socket.disconnect();
         return true;
     }
     //断线
 
-    winston.info("用户socket断开退出，用户ID：" + userItem.getUserID() + " 原因： " + data);
+    logger.info("用户socket断开退出，用户ID：" + userItem.getUserID() + " 原因： " + data);
     this.deleteUserItem(socket, userItem, true);
     return true;
 };
@@ -593,16 +743,15 @@ p.eventUserItemStatus = function (userItem, oldTableID, oldChairID, oldStatus) {
 
         this.sendLCData(corresCMD.USER_STATUS, {userID: userItem.userID, status: userItem.userStatus});
         if (userItem.userStatus == gameConst.US_NULL) {
-            winston.info("游戏服 -> 协调服, 用户状态： " + userItem.userStatus + " 游戏ID：" + userItem.getUserID());
+            logger.info("游戏服 -> 协调服, 用户状态： " + userItem.userStatus + " 游戏ID：" + userItem.getUserID());
         }
 
     }
 
     if (userItem.userStatus == gameConst.US_NULL && !userItem.isAndroid) {
         //如果状态为US_NULL关闭链接删除用户
-        userItem.socket.disconnect();
+        //userItem.socket.disconnect();
     }
-
 
     //群发状态本桌
     var table = this.tableFrame[userItem.tableID];
@@ -630,156 +779,20 @@ p.eventUserItemStatus = function (userItem, oldTableID, oldChairID, oldStatus) {
     return true;
 };
 
-/**
- * 通信主函数
- * @param data {mainCMD:x, subCMD:x, data:{xxx}}
- * @param socket 机器人时为null
- * @param androidUserItem 真人时为null
- * @returns {boolean}
- */
-p.onClientSocketEvent = function (data, socket, androidUserItem) {
-    var ret = false;
-    try {
-        switch (data['mainCMD']) {
-            //真人登录命令
-            case gameCMD.MDM_GR_LOGON:
-                ret = this.onClientLogonEvent(data['subCMD'], data['data'], socket, androidUserItem);
-                break;
-            //用户命令
-            case gameCMD.MDM_GR_USER:
-                ret = this.onClientUserEvent(data['subCMD'], data['data'], socket, androidUserItem);
-                break;
-            //游戏命令
-            case gameCMD.MDM_GF_GAME:
-                ret = this.onClientGameEvent(data['subCMD'], data['data'], socket, androidUserItem);
-                break;
-            //框架命令
-            case gameCMD.MDM_GF_FRAME:
-                ret = this.onClientFrameEvent(data['subCMD'], data['data'], socket, androidUserItem);
-                break;
-        }
-    } catch (err) {
-        //捕获异常错误处理
-        try {
-            this.deleteUserItem(socket, androidUserItem, true);
-            winston.error(err.stack);
-        }
-        catch (err2) {
-            winston.error(err2.stack);
-        }
-
-    }
-
-    //如果返回值错误断开链接
-    if (!ret) {
-
-        try {
-            var userItem = this.checkUserItem(socket, androidUserItem);
-            if (userItem) {
-                winston.error("返回值错误，删除用户, 用户ID:" + userItem.getUserID());
-                winston.error("----------------------------------------------------------");
-                winston.error(data);
-                winston.error("----------------------------------------------------------");
-            }
-            else {
-                winston.error("返回值错误，删除用户, 用户为空");
-                winston.error("----------------------------------------------------------");
-                winston.error(data);
-                winston.error("----------------------------------------------------------");
-            }
 
 
-            this.deleteUserItem(socket, androidUserItem, true);
-        }
-        catch (err) {
-            winston.error(err.stack);
-        }
-
-    }
-};
-/**
- * 客户端登录事件
- * @param subCMD 子命令
- * @param data 数据
- * @param socket 玩家socket
- * @param androidUserItem 用户item
- * @returns {boolean}
- */
-p.onClientLogonEvent = function (subCMD, data, socket, androidUserItem) {
-    switch (subCMD) {
-        case gameCMD.SUB_GR_LOGON_ACCOUNTS:
-
-            if (gameconfig["Single"]) {
-
-
-                var userItem = new ServerUserItem(socket, this);
-                userItem.socket = socket;
-                this.serverUserArray.push(userItem);
-
-                var tableFrame = this.tableFrame[0];
-
-                var i = this.serverUserArray.length;
-                var info = {};
-                userItem.userID = 123 + i;
-                info.userID = 123 + i;
-                info.gameID = 123 + i;
-                info.faceID = 1;
-                info.tableID = 0;
-                info.chairID = tableFrame.getFreeChairID();
-
-                info.score = 2000012;
-                info.nickname = "小鱼" + i;
-                info.gender = 0;
-                info.isAndroid = 0;
-                info.memberOrder = 10;
-                this.onLCUserSitDown(info);
-
-                console.info("用户登录ID: " + userItem.userID + " \n主动请求");
-                //请求坐下消息事件
-                this.sendLCData(corresCMD.USER_SIT_DOWN, {userID: userItem.userID, roomID: this.roomInfo.RoomID});
-                return true;
-            }
-
-            //创建用户，返回登录成功信息
-            var userItem = this.getUserItemByUserID(data["userID"]);
-
-            //之前遗留的用户强制关闭
-            if (userItem != null) {
-                winston.error("大厅启动两次触发，暂时处理");
-                //强制关闭客户端
-                this.sendData(userItem, gameCMD.MDM_GF_FRAME, gameCMD.SUB_GF_FORCE_CLOSE, null);
-                this.deleteUserItem(null, userItem, false);
-            }
-
-            var userItem = new ServerUserItem(socket, this);
-            userItem.userID = data["userID"];
-            this.serverUserArray.push(userItem);
-
-            winston.info("用户登录ID: " + userItem.userID + " \n主动请求");
-            userItem.socket = socket;
-
-            //请求坐下消息事件
-            this.sendLCData(corresCMD.USER_SIT_DOWN, {
-                uuid: data.uuid,                        //发个这个过去， 好验证是不是别人乱发的
-                userID: userItem.userID,
-                roomID: this.roomInfo.RoomID
-            });
-            return true;
-    }
-
-    return false;
-};
+   
 /**
  * 框架事件
  * @param subCMD
  * @param data
- * @param socket
+ * @param session
  * @param androidUserItem
  * @returns {boolean}
  */
-p.onClientFrameEvent = function (subCMD, data, socket, androidUserItem) {
-    var userItem = this.checkUserItem(socket, androidUserItem);
-    if (userItem == null) return false;
+p.onClientFrameEvent = function (subCMD, data, userItem, androidUserItem) {
+
+    logger.info("onClientFrameEvent", data, userItem.nickname,userItem.userID)
 
     var tableID = userItem.getTableID();
     var chairID = userItem.getChairID();
@@ -797,40 +810,21 @@ p.onClientFrameEvent = function (subCMD, data, socket, androidUserItem) {
 
     return true;
 };
-
-
-/**
- * 用户事件
- * @param subCMD
- * @param data
- * @param socket
- * @param androidUserItem
- * @returns {boolean}
- */
-p.onClientUserEvent = function (subCMD, data, socket, androidUserItem) {
-    switch (subCMD) {
-        //用户坐下
-        case gameCMD.SUB_GR_USER_SIT_DOWN:
-            return this.onSitDownEvent(data, socket, androidUserItem);
-        //用户起立
-        case gameCMD.SUB_GR_USER_STANDUP:
-            return this.onStandUpEvent(data, socket, androidUserItem);
-    }
-
-    return false;
-};
 /**
  * 游戏事件
  * @param subCMD
  * @param data
- * @param socket
+ * @param session
  * @param androidUserItem
  * @returns {boolean}
  */
-p.onClientGameEvent = function (subCMD, data, socket, androidUserItem) {
-    var tableUserItem = this.checkUserItem(socket, androidUserItem);
+p.onClientGameEvent = function(subCMD, data, userItem, androidUserItem) {
+    logger.info('onClientGameEvent',subCMD ,data);
+
+
+    var tableUserItem = userItem
     if (tableUserItem == null) {
-        winston.info('the client userItem is null');
+        logger.info('the client userItem is null');
         return false;
     }
 
@@ -844,10 +838,9 @@ p.onClientGameEvent = function (subCMD, data, socket, androidUserItem) {
 
     return tableFrame.onEventSocketGame(subCMD, data, tableUserItem);
 };
-
 /**
  * 通过socket获取用户
- * @param socket
+ * @param session
  * @returns {*}
  */
 p.getUserItem = function (socket) {
@@ -869,36 +862,9 @@ p.getUserItem = function (socket) {
  * @returns {*}
  */
 p.getUserItemByUserID = function (userID) {
-
-    for (var i = 0; i < this.serverUserArray.length; ++i) {
-        if (this.serverUserArray[i].userID == userID) {
-            return this.serverUserArray[i];
-        }
-    }
-    return null;
+    return this.userMap[userID]
 };
 
-/**
- * 根据玩家ID清理 桌子
- */
-p.clearTablesUserByID = function (userID) {
-
-    for (var i = 0; i < this.tableFrame.length; ++i) {
-
-        var table = this.tableFrame[i];
-        //坐着的玩家
-        for (var j = 0; j < this.roomInfo["ChairCount"]; j++) {
-            var userItem = table.getTableUserItem(j);
-
-            //桌子上起立
-            if (userItem && userItem.getUserID() == userID) {
-                winston.error("桌子人有人坐下, 桌子号: " + userItem.getTableID() + " , 椅子号: " + userItem.getChairID());
-                table.performStandUpActionNotNotifyPlaza(userItem);
-            }
-        }
-    }
-
-};
 
 /**
  * 通过游戏ID获取用户 , 判重
@@ -915,53 +881,72 @@ p.getUserItemArrayByUserID = function (userID) {
     return userArray;
 };
 
+
+
 /**
  * 删除用户 (通知协调服务器)
- * @param socket
+
  * @param userItem
  */
-p.deleteUserItem = function (socket, userItem, notifyPlaza) {
-    var userItem = this.checkUserItem(socket, userItem);
+p.deleteUserItem = function(userItem, jiesan) {
+
 
     if (userItem == null) {
-        winston.info("deleteUserItem userItem is null");
-        if (socket) socket.disconnect();
+        logger.info("deleteUserItem userItem is null");
         return;
     }
+    var table = this.tableFrame[userItem.tableID];
 
+    if (!jiesan) {
+        if (table != null) {
+            table.onUserDismissReq(userItem)
+        }
+        this.sendLCData("UserStandUpSuccess", {
+            userID: userItem.userID,
+            success: 0
+        });
+        return
+    }
     //如果已经被标志要删除了， 就不重入了， 比如玩家逃跑时， 可能会触发结算， 结算就会触发 分数踢人， 导致玩家重入
     if (userItem.markDelete) {
         return;
     }
     userItem.markDelete = true;
-
     //若在位置先让其起立
-    var table = this.tableFrame[userItem.tableID];
+
     if (table != null) {
-        if (notifyPlaza) {
-            table.performStandUpAction(userItem);
-        }
-        else {
-            table.performStandUpActionNotNotifyPlaza(userItem);
+        table.performStandUpActionNotNotifyPlaza(userItem);
+
+        if (table.getCurPlayerNum() == 0 && table.tableSetting) { //没玩家了
+            table.tableSetting = null //清掉这个桌子的配置
+            logger.info("tableSetting set null")
         }
 
-
-        table.broadCastTableData(gameCMD.MDM_GR_USER, gameCMD.SUB_GR_USER_STATUS, null,
-            {
-                userID: userItem.userID,
-                tableID: userItem.tableID,
-                chairID: userItem.chairID,
-                userStatus: gameConst.US_NULL
-            });
+        table.broadCastTableData(gameCMD.MDM_GR_USER, gameCMD.SUB_GR_USER_STATUS, null, {
+            userID: userItem.userID,
+            tableID: userItem.tableID,
+            chairID: userItem.chairID,
+            userStatus: gameConst.US_NULL
+        });
     }
+
+
+    this.userMap[userItem.userID] = null
 
     ttutil.arrayRemove(this.serverUserArray, userItem);
     if (userItem.isAndroid) {
         this.androidManager.deleteAndroidUserItem(userItem);
     }
 
+    this.sendLCData("UserStandUpSuccess", {
+        userID: userItem.userID,
+        success:1
+    });
+
+
 
 };
+
 
 
 /**
@@ -977,63 +962,6 @@ p.checkUserItem = function (sock, userItem) {
     return this.getUserItem(sock);
 };
 
-/**
- * 坐下处理
- * @param data
- * @param socket
- * @param androidUserItem
- * @returns {boolean}
- */
-p.onSitDownEvent = function (data, socket, androidUserItem) {
-    var userItem = this.checkUserItem(socket, androidUserItem);
-    if (userItem == null) {
-        winston.info("坐下失败，userItem == null");
-        return false;
-    }
-
-    if (userItem.tableID < this.roomInfo["TableCount"] && userItem.chairID < this.roomInfo["ChairCount"]) {
-        if (this.tableFrame[userItem.tableID].getTableUserItem(userItem.chairID) == userItem) {
-            winston.info("已经在这个位置上了");
-            return true;
-        }
-    }
-
-    //如果他了tableID为0xffff的话，自动寻位
-    var requestTableID = data['tableID'];
-    var requestChairID = data['chairID'];
-
-    if (requestTableID == null || requestTableID > this.roomInfo["TableCount"]) {
-        winston.info("非法椅子号");
-        return false;
-    }
-
-    //坐下处理
-    var sitSuccess = this.tableFrame[requestTableID].performSitDownAction(requestChairID, userItem);
-
-    if (sitSuccess) {
-        //发送给用户这桌的玩家
-        this.sendUserInfoPacket(userItem);
-        //通知这桌其他用户
-        this.sendUserEnter(userItem);
-    }
-
-    return sitSuccess;
-};
-
-
-/**
- * 起立
- * @param data
- * @param socket
- * @param androidUserItem
- * @returns {boolean}
- */
-p.onStandUpEvent = function (data, socket, androidUserItem) {
-    var userItem = this.checkUserItem(socket, androidUserItem);
-    this.deleteUserItem(socket, userItem, true);
-    return true;
-};
-
 
 /**
  * 发送玩家消息
@@ -1044,10 +972,12 @@ p.onStandUpEvent = function (data, socket, androidUserItem) {
  * @param messageType消息类型， 默认message
  * @returns {boolean}
  */
-p.sendData = function (userItem, mainCMD, subCMD, data, messageType) {
+p.sendData = function(userItem, mainCMD, subCMD, data, messageType) {
+
+    logger.info("发送消息给玩家11 0", userItem.nickname, mainCMD, subCMD, data);
     if (userItem instanceof ServerUserItem == false) {
-        winston.info("消息发送错误, userItem不是ServerUserItem");
-        //winston.info("消息发送错误, userItem不是ServerUserItem")
+        logger.info("消息发送错误, userItem不是ServerUserItem");
+        //logger.info("消息发送错误, userItem不是ServerUserItem")
         return false;
     }
 
@@ -1059,12 +989,15 @@ p.sendData = function (userItem, mainCMD, subCMD, data, messageType) {
     o.data = data;
 
     if (userItem.isAndroid == true) {
+         logger.info("机器人发送消息11111", mainCMD, subCMD, data);
         //机器人发送消息
-        this.androidManager.sendDataToClient(userItem, mainCMD, subCMD, data);
+        //this.androidManager.sendDataToClient(userItem, mainCMD, subCMD, data);
     } else {
 
+        logger.info("发送消息给玩家11111", mainCMD, subCMD, data);
         //直接发o
-        userItem.socket.emit(messageType, o);
+        socketMgr.tellUser(userItem, "gamemsg", o)
+
     }
 };
 

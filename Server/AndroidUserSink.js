@@ -8,7 +8,7 @@ var subGameMSG = require("./SubGameMSG").subGameMSG;
 var gameCMD = require("./define").gameCMD;
 var gameConfig = require("./gameconfig");
 var Util = require("./Util");
-var winston = require("winston");
+var logger = require('log4js').getLogger();
 
 var allBets = {
     '0': [100, 200, 500, 1000, 2000],
@@ -136,7 +136,7 @@ p.onNextActionHandler = function(data){
         var thinkTime = Util.randNum(1, 8, true);
         var doneCount = this.androidPlayer.doneCount;
         var curCards = this.cardData[doneCount];
-        winston.info("%s机器人行动,手牌为", userItem.nickname, curCards);
+        logger.info("%s机器人行动,手牌为", userItem.nickname, curCards);
         this.setGameTimer(this.androidThink.bind(this), TIMER_NEXT_PLAYER, thinkTime);
     }
 };
@@ -222,22 +222,22 @@ p.smartThink = function(){
     if (!result.isBlackJack && !result.isFiveDragon && !result.isBust) {
         if (baseCards.length == 2 && rankP < 18 && baseCards[0].num == baseCards[1].num) {
             actType = subGameMSG.TYPE_SPLIT;
-            winston.info("%s机器人%d点,分牌,庄家明牌为:", userItem.nickname, rankP, this.dealOpenCard);
+            logger.info("%s机器人%d点,分牌,庄家明牌为:", userItem.nickname, rankP, this.dealOpenCard);
         } else if (rankP >= 17 || (rankP >= 13 && rankP <= 16 && rankD >= 2 && rankD <= 6) ||
             (rankP == 12 && rankD >= 4 && rankD <= 6)) {
             // 停牌
             actType = subGameMSG.TYPE_STAND;
-            winston.info("%s机器人%d点,停牌,庄家明牌为:", userItem.nickname, rankP, this.dealOpenCard);
+            logger.info("%s机器人%d点,停牌,庄家明牌为:", userItem.nickname, rankP, this.dealOpenCard);
         } else if (baseCards.length == 2 &&
             (rankP == 11 && rankD != 1) || (rankP == 10 && rankD >= 2 && rankD < 10) ||
             (rankP == 9 && rankD >= 3 && rankD <= 6)) {
             // 加倍
             actType = subGameMSG.TYPE_DOUBLE;
-            winston.info("%s机器人%d点,加倍,庄家明牌为:", userItem.nickname, rankP, this.dealOpenCard);
+            logger.info("%s机器人%d点,加倍,庄家明牌为:", userItem.nickname, rankP, this.dealOpenCard);
         } else {
             // 要牌
             actType = subGameMSG.TYPE_HIT;
-            winston.info("%s机器人%d点,要牌,庄家明牌为:", userItem.nickname, rankP, this.dealOpenCard);
+            logger.info("%s机器人%d点,要牌,庄家明牌为:", userItem.nickname, rankP, this.dealOpenCard);
         }
 
         this.androidUserItem.sendSocketData(actType, {});
@@ -263,11 +263,11 @@ p.simpleThink = function(){
         // 小于16点就一直补牌
         if (rankP <= 16) {
             actType = subGameMSG.TYPE_HIT;
-            winston.info("%s机器人%d点,要牌,庄家明牌为:", userItem.nickname, rankP, this.dealOpenCard);
+            logger.info("%s机器人%d点,要牌,庄家明牌为:", userItem.nickname, rankP, this.dealOpenCard);
         } else {
             // 停牌
             actType = subGameMSG.TYPE_STAND;
-            winston.info("%s机器人%d点,停牌,庄家明牌为:", userItem.nickname, rankP, this.dealOpenCard);
+            logger.info("%s机器人%d点,停牌,庄家明牌为:", userItem.nickname, rankP, this.dealOpenCard);
         }
         this.androidUserItem.sendSocketData(actType, {});
     }

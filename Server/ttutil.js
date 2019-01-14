@@ -4,7 +4,7 @@
 
 
 var crypto = require('crypto');
-var winston = require('winston');
+var logger = require('log4js').getLogger();
 var ttutil = {};
 
 
@@ -36,14 +36,14 @@ ttutil.arrayRemove = function (array, element) {
  */
 ttutil.check981Data = function (last981MsgID, data) {
     if (!data || typeof data != "object" || typeof data._981_msgID != 'number') {
-        winston.error("数据包类型错误", data);
+        logger.error("数据包类型错误", data);
         return false;
     }
 
     ///////////////////////////////////////////////
     //已经处理过的msgID
     if (last981MsgID >= data._981_msgID) {
-        winston.error("数据包msgID错误", data);
+        logger.error("数据包msgID错误", data);
         return false;
     }
     ////////////////////////////////////////
@@ -54,7 +54,7 @@ ttutil.check981Data = function (last981MsgID, data) {
 
     //验证签名失败
     if (_981_sign != ttutil.hmac("%R&gE$%27fG^&Rf^(#*&FDF", JSON.stringify(data))) {
-        winston.error("数据包签名错误", data);
+        logger.error("数据包签名错误", data);
         return false;
     }
 

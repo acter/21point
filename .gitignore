@@ -5,3 +5,5 @@ Client/*.exe
 clientDebug/
 clientRelease/
 Temp/
+/Server/logs
+/Server/node_modules
