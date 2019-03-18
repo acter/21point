@@ -1,4 +1,36 @@
-this.coinY=[33,34,35,36,37,38]
-var rand = Math.floor( Math.random() * this.coinY.length );
-console.log(rand)
-var coin_y = this.coinY.slice(rand, rand+1);console.log(coin_y[0])
+//下注的金币处理函数
+
+function onWagerHandler(betNum,arr){
+    if(betNum == 0) return;
+    var arrItem = [];
+    var left = 0;
+    var intNum = 0;
+    var base;
+    var bets = [10, 100, 1000, 10000, 100000, 1000000];
+
+    for(var i = 0;i<bets.length;i++){
+
+        if(betNum == bets[i]){
+            base = bets[i];
+            intNum = Math.floor(betNum/base);
+            arrItem.push(base)
+            arrItem.push(intNum)
+            left = 0;
+            break;
+        }
+        if(betNum>bets[i]&&betNum<bets[i+1]){
+            base = bets[i]
+            intNum = Math.floor(betNum/base)
+            left = betNum-intNum*base;
+            arrItem.push(base)
+            arrItem.push(intNum)
+            break;
+        }
+    }
+    if(arrItem.length>0) arr.push(arrItem);
+
+    if(left>10) onWagerHandler(left,arr)
+    return arr;
+}
+var a=[]
+console.log(onWagerHandler(330,a));

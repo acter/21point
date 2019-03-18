@@ -103,7 +103,9 @@ cc.Class({
 
         temp.fillRange = precent;
     },
-    onWagerHandler: function(bet_num,coin){
+    //玩家下注
+    playerBet: function(bet_num,coin,spriteFrame){
+        var arr = []
         if(this.betNum <20000000){//如果大于最大下注数,就停止下注
             var betNum = bet_num;
             this.score.getComponent(cc.Label).string -= bet_num;
@@ -124,64 +126,53 @@ cc.Class({
             var coin_y = CoinXY.slice(randy, randy+1)[0];
 
 
+        // [[100,5]]
+            var bet_arr = this.onWagerHandler(bet_num,arr);
+
             coin.parent = this.gold;
-var coinsp = coin.getComponent(cc.Sprite).sp
-            coinsp.s
-            coin.runAction(cc.moveTo(0.3,cc.p(coin_x,coin_y)))
+            coin.getComponent(cc.Sprite).spriteFrame = spriteFrame ;
+            var seq = cc.moveTo(0.3,cc.p(coin_x,coin_y))
+            //金币移动
+            coin.runAction(seq)
+
+
             return;
         }else{
             return;
         }
+   
+    },
+    //下注的金币处理函数
+    onWagerHandler:function(betNum,arr){
+        if(betNum == 0) return;
+        var arrItem = [];
+        var left = 0;
+        var intNum = 0;
+        var base;
+        var bets = [10, 100, 1000, 10000, 100000, 1000000];
 
+        for(var i = 0;i<bets.length;i++){
 
-        // var betNum = data.betNum;
-        // var score = data.score;
-        // arr = arr || this._betSprites;
-        //
-        // var iteration = function(betNum, arr){
-        //     var left = 0;
-        //     var intNum = 0;
-        //     var base = 1;
-        //     var bets = [10, 100, 1000, 10000, 100000, 1000000];
-        //
-        //     for (var i = bets.length - 1; i >= 0; i--) {
-        //         base = bets[i];
-        //         if (betNum >= base) {
-        //             intNum = Math.floor(betNum / base);
-        //             left = betNum - intNum * base;
-        //             break;
-        //         }
-        //     }
-        //
-        //     for (var j = 0; j < intNum; j++) {
-        //         var img = "#21dian/coin_" + base + ".png";
-        //         var betSpr = new cc.Sprite(img).to(this).p(65, 86).qscale(0.5);
-        //
-        //         (function(betSpr, j){
-        //             var center = cc.p(65, 280);
-        //             var rad = Math.random() * 2 * Math.PI;
-        //             var x = center.x + 50 * Math.cos(rad) * Math.random();
-        //             var y = center.y + 50 * Math.sin(rad) * Math.random();
-        //             betSpr.runAction(new cc.Sequence(
-        //                 new cc.DelayTime(0.2 * j),
-        //                 new cc.CallFunc(function(){
-        //                     SoundEngine.playEffect("res/21dian/sound/Bet.mp3");
-        //                 }.bind(this)),
-        //                 new cc.MoveTo(0.2, cc.p(x, y))
-        //             ));
-        //         })(betSpr, j);
-        //
-        //         arr.push(betSpr);
-        //     }
-        //
-        //     if (left > 10) return iteration(left, arr);
-        // }.bind(this);
-        //
-        // // 开始迭代下金币
-        // betNum && iteration(betNum - this._betNum, arr);
-        // // 更新筹码
-        // betNum && this.loadBet(betNum);
-        // // 更新分数
-        // this._scoreLab.setString("" + score);
+            if(betNum == bets[i]){
+                base = bets[i];
+                intNum = Math.floor(betNum/base);
+                arrItem.push(base)
+                arrItem.push(intNum)
+                left = 0;
+                break;
+            }
+            if(betNum>bets[i]&&betNum<bets[i+1]){
+                base = bets[i]
+                intNum = Math.floor(betNum/base)
+                left = betNum-intNum*base;
+                arrItem.push(base)
+                arrItem.push(intNum)
+                break;
+            }
+        }
+        if(arrItem.length>0) arr.push(arrItem);
+
+        if(left>10) this.onWagerHandler(left,arr)
+        return arr;//例:500下注 返回[[100,5]] 1300  [[1000,1],[100,3]]
     },
 });

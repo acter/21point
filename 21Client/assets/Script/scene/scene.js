@@ -11,15 +11,15 @@ var ZZConfig = require("Config").ZZConfig
 
 cc.Class({
     properties:{
-          userPreb:{
+        userPreb:{
             default:null,
             type:cc.Prefab
-          },
-            goldPreb:{
-                default:null,
-                type:cc.Prefab
-            },
-        sprite:{
+        },
+        goldPreb:{
+            default:null,
+            type:cc.Prefab
+        },
+        Allsprite:{
             default:null,
             type:cc.SpriteAtlas
         }
@@ -60,10 +60,20 @@ cc.Class({
     //下注
     bet(bet_num){
         var myUserItem = GD.clientKernel.myUserItem;
-        var coin = cc.instantiate(this.goldPreb);
 
-        this.players[myUserItem.chairID].onWagerHandler(bet_num,coin);
-    },
+
+        var spriteFrames = this.Allsprite._spriteFrames;
+        var arr =[];
+        var bet_arr = this.players[myUserItem.chairID].onWagerHandler(bet_num,arr);
+        for(var i = 0;i<bet_arr.length;i++){
+            for(var j = 0;j<bet_arr[i][1];j++){
+                var coin = cc.instantiate(this.goldPreb);
+                var spriteFrame = spriteFrames["21dian-coin_"+bet_arr[i][0]];
+                this.players[myUserItem.chairID].playerBet(bet_num,coin,spriteFrame);
+            }
+        }
+
+},
     // 加载开始提示
     // loadStartTip: function(){
     //     var size  = cc.winSize;
@@ -118,18 +128,20 @@ cc.Class({
     },
     //玩家坐下
     playSit(chairID,data){
+        if(!data.isDealer){
+            this.playChair = this.playerPos.getChildByName('pos'+chairID)
+            var newPlayer = cc.instantiate(this.userPreb);
+            let templayer= newPlayer.addComponent(Player);
 
-        this.playChair = this.playerPos.getChildByName('pos'+chairID)
-        var newPlayer = cc.instantiate(this.userPreb);
-        let templayer= newPlayer.addComponent(Player);
+            var script = newPlayer.getComponent('player')
+            script.loadInfo(data)
+            this.playChair.addChild(newPlayer);
+            this.playChair.active = true;
+            this.players[chairID] = templayer;
+            //
+            return script;
+        }
 
-        var script = newPlayer.getComponent('player')
-        script.loadInfo(data)
-        this.playChair.addChild(newPlayer);
-        this.playChair.active = true;
-        this.players[chairID] = templayer;
-        //
-        return script;
     }
 
 });
