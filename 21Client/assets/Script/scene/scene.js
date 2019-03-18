@@ -67,6 +67,7 @@ cc.Class({
         var bet_arr = this.players[myUserItem.chairID].onWagerHandler(bet_num,arr);
         for(var i = 0;i<bet_arr.length;i++){
             for(var j = 0;j<bet_arr[i][1];j++){
+                //循环创建实例
                 var coin = cc.instantiate(this.goldPreb);
                 var spriteFrame = spriteFrames["21dian-coin_"+bet_arr[i][0]];
                 this.players[myUserItem.chairID].playerBet(bet_num,coin,spriteFrame);
