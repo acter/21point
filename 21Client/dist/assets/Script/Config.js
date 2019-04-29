@@ -86,4 +86,5 @@ var PlayerTypes = {
 var RANK_21 = 21; // 21点
 module.exports.PlayerTypes = PlayerTypes;
 module.exports.RuleTxt = RuleTxt;
+module.exports.RANK_21 = RANK_21;
 //# sourceMappingURL=Config.js.map

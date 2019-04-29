@@ -15,6 +15,5 @@ module.exports = {
 	chairID: 0xFFFF,
 	tableID: 0xFFFF,
 	coreConfig: {}
-
 };
 //# sourceMappingURL=GD.js.map

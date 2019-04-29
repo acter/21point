@@ -25,11 +25,9 @@ cc.Class({
 
     },
 
-
     start() {
 
     },
-
 
     onDestroy() {
         for (var i = 0; i < this.bindObj.length; i++) {
@@ -67,17 +65,11 @@ cc.Class({
         this.scheduleOnce(function() {
             this.enterRoom(roomID)
         }, 1);
-
-
-
     },
-
-
     enterRoom(roomID) {
         console.log("正在进入房间", roomID)
         this.enterRoom = false
         NetHelp.connect();
-
     },
 
 

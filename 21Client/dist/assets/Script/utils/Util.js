@@ -61,7 +61,22 @@ U.numberMaker = function (img, num, w, h, removeSignal) {
 
     return layout;
 };
-
+/**
+ *配置数字
+ */
+U.numberTran = function (num) {
+    var s = "";
+    var base = 1;
+    if (num >= 100000000) {
+        s = "Y";
+        base = 100000000;
+    } else if (num >= 10000) {
+        s = "W";
+        base = 10000;
+    }
+    num = (num / base).toFixed(0);
+    return num + s;
+};
 /**
  * 根据配置构造数字
  * @param img
@@ -266,4 +281,5 @@ U.countCard = function (cards, hard, canBlackJack) {
         isFiveDragon: isFiveDragon
     };
 };
+module.exports = Util;
 //# sourceMappingURL=Util.js.map
