@@ -384,7 +384,9 @@ cc.Class({
             //     return true;
         }
     },
-
+test(){
+        console.log('test')
+}
 
 
 
