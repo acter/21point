@@ -1,0 +1,62 @@
+
+BaoPai.png
+size: 512,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+21_BP_0012
+  rotate: false
+  xy: 164, 152
+  size: 49, 36
+  orig: 49, 36
+  offset: 0, 0
+  index: -1
+21_BP_0011
+  rotate: false
+  xy: 322, 227
+  size: 145, 57
+  orig: 145, 57
+  offset: 0, 0
+  index: -1
+21_BP_0010
+  rotate: false
+  xy: 1, 246
+  size: 157, 86
+  orig: 157, 86
+  offset: 0, 0
+  index: -1
+21_BP_009
+  rotate: false
+  xy: 248, 130
+  size: 159, 95
+  orig: 159, 95
+  offset: 0, 0
+  index: -1
+21_BP_008
+  rotate: false
+  xy: 164, 227
+  size: 156, 87
+  orig: 166, 90
+  offset: 6, 3
+  index: -1
+21_BP_007
+  rotate: false
+  xy: 1, 152
+  size: 161, 92
+  orig: 175, 92
+  offset: 6, 0
+  index: -1
+21_BP_003
+  rotate: false
+  xy: 248, 1
+  size: 211, 127
+  orig: 264, 166
+  offset: 26, 25
+  index: -1
+21_BP_002
+  rotate: false
+  xy: 1, 1
+  size: 245, 149
+  orig: 264, 166
+  offset: 9, 14
+  index: -1

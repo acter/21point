@@ -251,9 +251,9 @@ cc.Class({
             var isPlaying = player.isPlaying();
             if (isPlaying && !player.isDealer()) {
                 if (myUserItem.userID == player.getUserID()) {
-                    this.insuranceLayer = new InsuranceLayer(
-                        this.onCloseInsuranceLayer.bind(this), betNum
-                    ).to(this, 2);
+                    this.popBg = this.node.getChildByName('21dian-popBg')
+                    this.insuranceLayer = this.popBg.getComponent('InsuranceLayer');
+                    this.insuranceLayer.loadInfo(this.onCloseInsuranceLayer.bind(this), betNum);
                 }
                 player.showProgressTimer();
             }
@@ -263,15 +263,16 @@ cc.Class({
     onBuyInsuranceHandler: function(data){
         var curPlayer = this.findPlayerByID(data.userID);
         curPlayer.onBuyInsuranceHandler(data);
-        SoundEngine.playEffect("res/21dian/sound/Insurance.mp3");
+        // SoundEngine.playEffect("res/21dian/sound/Insurance.mp3");
     },
     // 关闭强制退出提示
     onCloseInsuranceLayer: function(type){
         if (this.insuranceLayer) {
             if (type == this.insuranceLayer.TYPE_YES) {
-                GD.gameEngine.sendInsuranceMessage(subGameMSG.TYPE_INSURANCE, {flag: type});
+                // GD.gameEngine.sendInsuranceMessage(subGameMSG.TYPE_INSURANCE, {flag: type});
+                GD.clientKernel.sendSocketData(gameCMD.MDM_GF_GAME,subGameMSG.TYPE_INSURANCE,{flag: type})
             }
-            this.insuranceLayer.removeFromParent();
+            this.popBg.active = false;
             this.insuranceLayer = null;
         }
     },
@@ -293,6 +294,49 @@ cc.Class({
                 this.buttonLayer.setOperateLayerVisible(false);
             }
         }
+    },
+    // 停牌的处理函数
+    onStandHandler: function(data){
+        // data: {userID: ,curCards: ,}
+        for (var i = 0, lenI = this.players.length; i < lenI; i++) {
+            var player = this.players[i];
+            if (player && player.getUserID() == data.userID) {
+                var myUserItem = GD.clientKernel.myUserItem;
+                // 如果是自己停牌,则隐藏操作层
+                if (myUserItem.userID == data.userID) {
+                    this.buttonLayer.setOperateLayerVisible(false);
+                }
+                // 只显示一个点数
+                player.showOnlyRank(data.curCards);
+                // 隐藏补牌的箭头
+                player.setHitTipVisible(null, false);
+                player.hideProgressTimer();
+            }
+        }
+        // SoundEngine.playEffect("res/21dian/sound/Hit.mp3");
+    },
+    // 分牌的处理函数
+    onSplitHandler: function(data){
+        // data: {userID: ,betNum: ,cardData: ,allCards: ,score: ,cardLeftNum:}
+        var curPlayer = this.findPlayerByID(data.userID);
+        curPlayer.onSplitHandler(data);
+        curPlayer.showProgressTimer();
+        this.roomInfoLayer.updateCardNum(data.cardLeftNum);
+        // SoundEngine.playEffect("res/21dian/sound/Split.mp3");
+    },
+    // 不是黑杰克的处理函数
+    onIsBlackJackHandler: function(data){
+        var mul = data.flag ? 1.5 : -1;
+        var insuranceData = data.insurances;
+
+        for (var chairID in insuranceData) {
+            var curPlayer = this.players[chairID];
+            var insurance = insuranceData[chairID] * mul;
+
+            curPlayer.onIsBlackJackHandler(insurance);
+        }
+        //
+        this.onCloseInsuranceLayer(null);
     },
     // 隐藏进度条
     hideProgressTimer: function(){
@@ -327,51 +371,38 @@ cc.Class({
             case subGameMSG.TYPE_WAGERING:
                 this.onWageringHandler(data);
                 break;
-
             case subGameMSG.TYPE_WAGER:
                 this.onWagerHandler(data);
                 break;
             case subGameMSG.TYPE_DEAL:
                 this.onDealHandler(data);
                 break;
-
-
             case subGameMSG.TYPE_NEXT_ACTION:
                 this.onNextActionHandler(data);
                 break;
-
-            // case subGameMSG.TYPE_HIT:
-            //     this.onHitHandler(data);
-            //     break;
-            //
-            // case subGameMSG.TYPE_STAND:
-            //     this.onStandHandler(data);
-            //     break;
-            //
+            case subGameMSG.TYPE_HIT:
+                this.onHitHandler(data);
+                break;
+            case subGameMSG.TYPE_STAND:
+                this.onStandHandler(data);
+                break;
             // case subGameMSG.TYPE_BUST:
             //     this.onBustHandler(data);
             //     break;
             //
-            // case subGameMSG.TYPE_SPLIT:
-            //     this.onSplitHandler(data);
-            //     break;
-            //
-            // case subGameMSG.TYPE_GAME_OVER:
-            //     this.onGameOverHandler(data);
-            //     break;
-            //
+            case subGameMSG.TYPE_SPLIT:
+                this.onSplitHandler(data);
+                break;
             case subGameMSG.TYPE_INSURANCE:
                 this.onInsuranceHandler(data);
                 break;
+            case subGameMSG.TYPE_BUY_INSURANCE:
+                this.onBuyInsuranceHandler(data);
+                break;
+            case subGameMSG.TYPE_IS_BLACK_JACK:
+                this.onIsBlackJackHandler(data);
+                break;
 
-            // case subGameMSG.TYPE_BUY_INSURANCE:
-            //     this.onBuyInsuranceHandler(data);
-            //     break;
-            //
-            // case subGameMSG.TYPE_IS_BLACK_JACK:
-            //     this.onIsBlackJackHandler(data);
-            //     break;
-            //
             // case subGameMSG.TYPE_DEAL_TURN:
             //     this.onDealTurnHandler(data);
             //     break;
@@ -384,9 +415,7 @@ cc.Class({
             //     return true;
         }
     },
-test(){
-        console.log('test')
-}
+
 
 
 

@@ -34,7 +34,7 @@ cc.Class({
             // 加载玩家信息
             this.loadPlayInfo()
             // 加载购买了保险的提示
-            // this.loadBuyInsuranceFlagSprite();
+            this.loadBuyInsuranceFlagSprite();
             // 加载时间进度条
             this.loadProgressTimer();
             // 加载筹码
@@ -54,6 +54,7 @@ cc.Class({
         this.cardNode = this.node.getChildByName('card');
         this.coinNode = this.node.getChildByName('gold')
         this.tipNode = this.node.getChildByName('tip');
+        this._buyInsuranceFlagSpr = this.playerBgNode.getChildByName('21dian-insuranceBuy');
     },
     // 加载头像
     loadFace() {
@@ -87,6 +88,24 @@ cc.Class({
         // var callFunc = cc.callFunc(this.playertip.active,false)
         this.tipNode.runAction(action3);// right
 
+    },
+    // 显示唯一的点数
+    showOnlyRank: function(curCards){
+        var key = curCards.selfKey;
+        var curBox = this._cardBoxes[key];
+
+        curBox && curBox.showOnlyRank(curCards);
+    },
+// 显示要牌的箭头提示
+    setHitTipVisible: function(targetKey, visible){
+        for (var key in this._cardBoxes) {
+            this._cardBoxes[key].setArrowVisible(false);
+        }
+
+        if (visible) {
+            this._cardBoxes[targetKey].setArrowVisible(visible);
+            !this.isDealer() && this.showProgressTimer();
+        }
     },
 
     // 加载时间进度条
@@ -127,7 +146,10 @@ cc.Class({
     hideProgressTimer(){
         this.progressTimer && (this.progress.active = false);
     },
-
+// 加载购买了保险的提示
+    loadBuyInsuranceFlagSprite: function(){
+        this._buyInsuranceFlagSpr.active = false;
+    },
     // 初始化成员变量
     initMembers: function(data){
         this._data = data;
@@ -226,7 +248,7 @@ cc.Class({
             this.hideProgressTimer();
         } else if (result.isBust && !isDealer) {
             // 庄家爆牌则不需要做这一步
-            this.runAction(cc.sequence(
+            curCardBox.runAction(cc.sequence(
                 cc.delayTime(0.5),
                 cc.callFunc(function(){
                     var betNum = this._betNum - data.baseBet;
@@ -241,6 +263,16 @@ cc.Class({
             this.showProgressTimer();
         }
     },
+    // 分牌的处理函数
+    onSplitHandler: function(data){
+        // data: {userID: ,betNum: ,cardData: ,allCards: ,score: ,cardLeftNum:}
+        // 重置数据
+        this.reset();
+        // 重新加载套牌
+        this.loadCardBoxes(data.allCards);
+        //
+        this.onWagerHandler(data);
+    },
     // 买保险的处理函数
     onBuyInsuranceHandler: function(data){
         this._insuranceBets = [];
@@ -248,6 +280,7 @@ cc.Class({
             betNum: this._betNum + data.betNum,
             score: data.score
         }, this._insuranceBets);
+        this._buyInsuranceFlagSpr.active = true;
     },
     // 金币移动
     coinMove: function(num){
@@ -309,7 +342,25 @@ cc.Class({
             !this.isDealer() && this.showProgressTimer();
         }
     },
-    reset(){
+    // 是否是黑杰克的处理函数
+    onIsBlackJackHandler: function(betNum){
+        // 金币移动
+        this.coinMove(betNum);
+        // 更新筹码
+        this.loadBet(this._betNum + betNum);
+        // 移除保险筹码
+        this.removeInsuranceBets();
+        this._buyInsuranceFlagSpr.hide();
+    },
+    // 移除保险筹码
+    removeInsuranceBets: function(){
+        for (var i = 0, lenI = this._insuranceBets.length; i < lenI; i++) {
+            this._insuranceBets[i].removeFromParent();
+        }
+        this._insuranceBets = [];
+    },
+    //重置
+    reset:function(){
         for (var key in this._cardBoxes) {
             var cardBox = this._cardBoxes[key];
             cardBox.deleteSelf();

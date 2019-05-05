@@ -172,7 +172,7 @@ cc.Class({
         // data: {selfKey: ,userID: ,card: ,canDouble: ,canSplit: ,isDouble: ,curCards: ,score:}
         var cardSpr = this.cardMaker(data.card, 0.0);
 
-        this.runAction(cc.sequence(
+        cardSpr.runAction(cc.sequence(
             cc.delayTime(0.6),
             cc.callFunc(function(){
                 data.isDouble && cardSpr.addChild(this.addDoubleTip('21dian-doubleTip'));
@@ -216,7 +216,7 @@ cc.Class({
             snd = (ranks[0] == RANK_21 || ranks[1] == RANK_21) ? "21.mp3" : snd;
         }
         // 加载骨骼动画
-        // this.loadArmature(result);
+        this.loadArmature(result);
         this._rankLab &&  this.setRankStr(rankStr);
         this._rankBgSpr && this.setSprVisible(this._rankBgSpr,visible);
         this._rankBgSpr && this.setRankSprSprite(img);
@@ -299,8 +299,6 @@ cc.Class({
         ));
     },
 
-
-
     blackJackJudge: function(cardSpr){
         cardSpr.runAction(cc.sequence(
             cc.delayTime(1.5),
@@ -315,10 +313,10 @@ cc.Class({
         for (var i = this._cards.length - 1; i >= 0; i--) {
             var p = this.convertToNodeSpace(this.POINT_OUT);
             var cardSpr = this._cards.splice(i, 1)[0];
-
-            cardSpr.loadTexture("21dian/pkp_bm.png", ccui.Widget.PLIST_TEXTURE);
+            console.log('卡牌移走',cardSpr)
+            cardSpr.spriteFrame = this.Allsprite.getSpriteFrame("21dian-pkp_bm");
+            // cardSpr.loadTexture("21dian/pkp_bm.png", ccui.Widget.PLIST_TEXTURE);
             this.cardMove(cardSpr, p, 0, 0, 0);
-
             this.runAction(cc.sequence(
                 cc.delayTime(1.0),
                 cc.callFunc(function(){
@@ -326,9 +324,9 @@ cc.Class({
                 }.bind(this))
             ))
         }
-        this._armature && this._armature.removeFromParent();
-        this._rankBgSpr && this._rankBgSpr.removeFromParent();
-        this._arrowSpr && this._arrowSpr.removeFromParent();
+        // this._armature && this._armature.;
+        this._rankBgSpr && (this._rankBgSpr.active = false);
+        this._arrowSpr && (this._arrowSpr.active = false);
     },
 
     // 卡牌移动.

@@ -33,7 +33,7 @@ cc.Class({
     // 加载文字
     loadLabel: function(){
         var txt = "是否购买保险?\n\n花费筹码" + this._betNum * 0.5;
-        var content = this.node.getChildByName('content')getComponent(cc.Label);
+        var content = this.node.getChildByName('content').getComponent(cc.Label);
         content.string = txt;
     },
     // 加载背景
@@ -57,7 +57,7 @@ cc.Class({
     },
     // 点击按钮的处理函数
     onButtonHandler: function(btn) {
-        GD.mainScene.setSelectPanal();
+        // GD.mainScene.setSelectPanal();
         this._callback && this._callback(btn.type);
     },
     /*

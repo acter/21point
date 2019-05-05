@@ -23,7 +23,7 @@
           "bl": 0,
           "display_data": [
             {
-              "name": "21dian/LiZi/21_HJK_b005.png",
+              "name": "21_HJK_b005.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -37,7 +37,7 @@
               ]
             },
             {
-              "name": "21dian/LiZi/21_HJK_b006.png",
+              "name": "21_HJK_b006.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -51,7 +51,7 @@
               ]
             },
             {
-              "name": "21dian/LiZi/21_HJK_b007.png",
+              "name": "21_HJK_b007.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -65,7 +65,7 @@
               ]
             },
             {
-              "name": "21dian/LiZi/21_HJK_b008.png",
+              "name": "21_HJK_b008.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -79,7 +79,7 @@
               ]
             },
             {
-              "name": "21dian/LiZi/21_HJK_b009.png",
+              "name": "21_HJK_b009.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -93,7 +93,7 @@
               ]
             },
             {
-              "name": "21dian/LiZi/21_HJK_b0010.png",
+              "name": "21_HJK_b0010.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -107,7 +107,7 @@
               ]
             },
             {
-              "name": "21dian/LiZi/21_HJK_b0011.png",
+              "name": "21_HJK_b0011.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -121,7 +121,7 @@
               ]
             },
             {
-              "name": "21dian/LiZi/21_HJK_b0012.png",
+              "name": "21_HJK_b0012.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -135,7 +135,7 @@
               ]
             },
             {
-              "name": "21dian/LiZi/21_HJK_b0013.png",
+              "name": "21_HJK_b0013.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -149,7 +149,7 @@
               ]
             },
             {
-              "name": "21dian/LiZi/21_HJK_b0014.png",
+              "name": "21_HJK_b0014.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -163,7 +163,7 @@
               ]
             },
             {
-              "name": "21dian/LiZi/21_HJK_b0015.png",
+              "name": "21_HJK_b0015.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -177,7 +177,7 @@
               ]
             },
             {
-              "name": "21dian/LiZi/21_HJK_b0016.png",
+              "name": "21_HJK_b0016.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -191,7 +191,7 @@
               ]
             },
             {
-              "name": "21dian/LiZi/21_HJK_b0017.png",
+              "name": "21_HJK_b0017.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -205,7 +205,7 @@
               ]
             },
             {
-              "name": "21dian/LiZi/21_HJK_b0018.png",
+              "name": "21_HJK_b0018.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -219,7 +219,7 @@
               ]
             },
             {
-              "name": "21dian/LiZi/21_HJK_b0019.png",
+              "name": "21_HJK_b0019.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -233,7 +233,7 @@
               ]
             },
             {
-              "name": "21dian/LiZi/21_HJK_b0020.png",
+              "name": "21_HJK_b0020.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -265,7 +265,7 @@
           "bl": 0,
           "display_data": [
             {
-              "name": "21dian/ShanDian/21_HJK_d011.png",
+              "name": "21_HJK_d011.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -279,7 +279,7 @@
               ]
             },
             {
-              "name": "21dian/ShanDian/21_HJK_d013.png",
+              "name": "21_HJK_d013.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -293,7 +293,7 @@
               ]
             },
             {
-              "name": "21dian/ShanDian/21_HJK_d012.png",
+              "name": "21_HJK_d012.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -307,7 +307,7 @@
               ]
             },
             {
-              "name": "21dian/ShanDian/21_HJK_d010.png",
+              "name": "21_HJK_d010.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -321,7 +321,7 @@
               ]
             },
             {
-              "name": "21dian/ShanDian/21_HJK_d009.png",
+              "name": "21_HJK_d009.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -335,7 +335,7 @@
               ]
             },
             {
-              "name": "21dian/GuangBian/21_HJK_a007.png",
+              "name": "21_HJK_a007.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -349,7 +349,7 @@
               ]
             },
             {
-              "name": "21dian/GuangBian/21_HJK_a008.png",
+              "name": "21_HJK_a008.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -363,7 +363,7 @@
               ]
             },
             {
-              "name": "21dian/GuangBian/21_HJK_a009.png",
+              "name": "21_HJK_a009.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -377,7 +377,7 @@
               ]
             },
             {
-              "name": "21dian/GuangBian/21_HJK_a0010.png",
+              "name": "21_HJK_a0010.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -391,7 +391,7 @@
               ]
             },
             {
-              "name": "21dian/GuangBian/21_HJK_a0011.png",
+              "name": "21_HJK_a0011.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -405,7 +405,7 @@
               ]
             },
             {
-              "name": "21dian/GuangBian/21_HJK_a0012.png",
+              "name": "21_HJK_a0012.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -419,7 +419,7 @@
               ]
             },
             {
-              "name": "21dian/GuangBian/21_HJK_a0013.png",
+              "name": "21_HJK_a0013.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -433,7 +433,7 @@
               ]
             },
             {
-              "name": "21dian/GuangBian/21_HJK_a0014.png",
+              "name": "21_HJK_a0014.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -465,7 +465,7 @@
           "bl": 0,
           "display_data": [
             {
-              "name": "21dian/ShanDian/21_HJK_d013.png",
+              "name": "21_HJK_d013.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -479,7 +479,7 @@
               ]
             },
             {
-              "name": "21dian/ShanDian/21_HJK_d001.png",
+              "name": "21_HJK_d001.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -493,7 +493,7 @@
               ]
             },
             {
-              "name": "21dian/ShanDian/21_HJK_d002.png",
+              "name": "21_HJK_d002.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -507,7 +507,7 @@
               ]
             },
             {
-              "name": "21dian/ShanDian/21_HJK_d003.png",
+              "name": "21_HJK_d003.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -521,7 +521,7 @@
               ]
             },
             {
-              "name": "21dian/ShanDian/21_HJK_d004.png",
+              "name": "21_HJK_d004.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -535,7 +535,7 @@
               ]
             },
             {
-              "name": "21dian/ShanDian/21_HJK_d005.png",
+              "name": "21_HJK_d005.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -549,7 +549,7 @@
               ]
             },
             {
-              "name": "21dian/ShanDian/21_HJK_d006.png",
+              "name": "21_HJK_d006.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -563,7 +563,7 @@
               ]
             },
             {
-              "name": "21dian/ShanDian/21_HJK_d007.png",
+              "name": "21_HJK_d007.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -577,7 +577,7 @@
               ]
             },
             {
-              "name": "21dian/ShanDian/21_HJK_d008.png",
+              "name": "21_HJK_d008.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -591,7 +591,7 @@
               ]
             },
             {
-              "name": "21dian/ShanDian/21_HJK_d009.png",
+              "name": "21_HJK_d009.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -605,7 +605,7 @@
               ]
             },
             {
-              "name": "21dian/ShanDian/21_HJK_d010.png",
+              "name": "21_HJK_d010.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -619,7 +619,7 @@
               ]
             },
             {
-              "name": "21dian/ShanDian/21_HJK_d011.png",
+              "name": "21_HJK_d011.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -633,7 +633,7 @@
               ]
             },
             {
-              "name": "21dian/ShanDian/21_HJK_d012.png",
+              "name": "21_HJK_d012.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -665,7 +665,7 @@
           "bl": 0,
           "display_data": [
             {
-              "name": "21dian/GuangBian/21_HJK_a007.png",
+              "name": "21_HJK_a007.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -679,7 +679,7 @@
               ]
             },
             {
-              "name": "21dian/GuangBian/21_HJK_a008.png",
+              "name": "21_HJK_a008.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -693,7 +693,7 @@
               ]
             },
             {
-              "name": "21dian/GuangBian/21_HJK_a009.png",
+              "name": "21_HJK_a009.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -707,7 +707,7 @@
               ]
             },
             {
-              "name": "21dian/GuangBian/21_HJK_a0010.png",
+              "name": "21_HJK_a0010.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -721,7 +721,7 @@
               ]
             },
             {
-              "name": "21dian/GuangBian/21_HJK_a0011.png",
+              "name": "21_HJK_a0011.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -735,7 +735,7 @@
               ]
             },
             {
-              "name": "21dian/GuangBian/21_HJK_a0012.png",
+              "name": "21_HJK_a0012.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -749,7 +749,7 @@
               ]
             },
             {
-              "name": "21dian/GuangBian/21_HJK_a0013.png",
+              "name": "21_HJK_a0013.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -763,7 +763,7 @@
               ]
             },
             {
-              "name": "21dian/GuangBian/21_HJK_a0014.png",
+              "name": "21_HJK_a0014.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -795,7 +795,7 @@
           "bl": 0,
           "display_data": [
             {
-              "name": "21dian/21_HJK_f001.png",
+              "name": "21_HJK_f001.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -827,7 +827,7 @@
           "bl": 0,
           "display_data": [
             {
-              "name": "21dian/21_HJK_g001.png",
+              "name": "21_HJK_g001.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -859,7 +859,7 @@
           "bl": 0,
           "display_data": [
             {
-              "name": "21dian/21_HJK_h001.png",
+              "name": "21_HJK_h001.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -891,7 +891,7 @@
           "bl": 0,
           "display_data": [
             {
-              "name": "21dian/21_HJK_e001.png",
+              "name": "21_HJK_e001.png",
               "displayType": 0,
               "skin_data": [
                 {
@@ -3674,7 +3674,7 @@
       "plistFile": ""
     },
     {
-      "name": "GuangBian/21_HJK_a007",
+      "name": "21_HJK_a007",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3682,7 +3682,7 @@
       "plistFile": ""
     },
     {
-      "name": "GuangBian/21_HJK_a008",
+      "name": "21_HJK_a008",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3690,7 +3690,7 @@
       "plistFile": ""
     },
     {
-      "name": "GuangBian/21_HJK_a009",
+      "name": "21_HJK_a009",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3698,7 +3698,7 @@
       "plistFile": ""
     },
     {
-      "name": "GuangBian/21_HJK_a0010",
+      "name": "21_HJK_a0010",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3706,7 +3706,7 @@
       "plistFile": ""
     },
     {
-      "name": "GuangBian/21_HJK_a0011",
+      "name": "21_HJK_a0011",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3714,7 +3714,7 @@
       "plistFile": ""
     },
     {
-      "name": "GuangBian/21_HJK_a0012",
+      "name": "21_HJK_a0012",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3722,7 +3722,7 @@
       "plistFile": ""
     },
     {
-      "name": "GuangBian/21_HJK_a0013",
+      "name": "21_HJK_a0013",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3730,7 +3730,7 @@
       "plistFile": ""
     },
     {
-      "name": "GuangBian/21_HJK_a0014",
+      "name": "21_HJK_a0014",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3738,7 +3738,7 @@
       "plistFile": ""
     },
     {
-      "name": "ShanDian/21_HJK_d013",
+      "name": "21_HJK_d013",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3746,7 +3746,7 @@
       "plistFile": ""
     },
     {
-      "name": "ShanDian/21_HJK_d001",
+      "name": "21_HJK_d001",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3754,7 +3754,7 @@
       "plistFile": ""
     },
     {
-      "name": "ShanDian/21_HJK_d002",
+      "name": "21_HJK_d002",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3762,7 +3762,7 @@
       "plistFile": ""
     },
     {
-      "name": "ShanDian/21_HJK_d003",
+      "name": "21_HJK_d003",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3770,7 +3770,7 @@
       "plistFile": ""
     },
     {
-      "name": "ShanDian/21_HJK_d004",
+      "name": "21_HJK_d004",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3778,7 +3778,7 @@
       "plistFile": ""
     },
     {
-      "name": "ShanDian/21_HJK_d005",
+      "name": "21_HJK_d005",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3786,7 +3786,7 @@
       "plistFile": ""
     },
     {
-      "name": "ShanDian/21_HJK_d006",
+      "name": "21_HJK_d006",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3794,7 +3794,7 @@
       "plistFile": ""
     },
     {
-      "name": "ShanDian/21_HJK_d007",
+      "name": "21_HJK_d007",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3802,7 +3802,7 @@
       "plistFile": ""
     },
     {
-      "name": "ShanDian/21_HJK_d008",
+      "name": "21_HJK_d008",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3810,7 +3810,7 @@
       "plistFile": ""
     },
     {
-      "name": "ShanDian/21_HJK_d009",
+      "name": "21_HJK_d009",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3818,7 +3818,7 @@
       "plistFile": ""
     },
     {
-      "name": "ShanDian/21_HJK_d010",
+      "name": "21_HJK_d010",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3826,7 +3826,7 @@
       "plistFile": ""
     },
     {
-      "name": "ShanDian/21_HJK_d011",
+      "name": "21_HJK_d011",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3834,7 +3834,7 @@
       "plistFile": ""
     },
     {
-      "name": "ShanDian/21_HJK_d012",
+      "name": "21_HJK_d012",
       "width": 72.0,
       "height": 265.0,
       "pX": 0.5,
@@ -3842,7 +3842,7 @@
       "plistFile": ""
     },
     {
-      "name": "LiZi/21_HJK_b005",
+      "name": "21_HJK_b005",
       "width": 96.0,
       "height": 201.0,
       "pX": 0.5,
@@ -3850,7 +3850,7 @@
       "plistFile": ""
     },
     {
-      "name": "LiZi/21_HJK_b006",
+      "name": "21_HJK_b006",
       "width": 96.0,
       "height": 201.0,
       "pX": 0.5,
@@ -3858,7 +3858,7 @@
       "plistFile": ""
     },
     {
-      "name": "LiZi/21_HJK_b007",
+      "name": "21_HJK_b007",
       "width": 96.0,
       "height": 201.0,
       "pX": 0.5,
@@ -3866,7 +3866,7 @@
       "plistFile": ""
     },
     {
-      "name": "LiZi/21_HJK_b008",
+      "name": "21_HJK_b008",
       "width": 96.0,
       "height": 201.0,
       "pX": 0.5,
@@ -3874,7 +3874,7 @@
       "plistFile": ""
     },
     {
-      "name": "LiZi/21_HJK_b009",
+      "name": "21_HJK_b009",
       "width": 96.0,
       "height": 201.0,
       "pX": 0.5,
@@ -3882,7 +3882,7 @@
       "plistFile": ""
     },
     {
-      "name": "LiZi/21_HJK_b0010",
+      "name": "21_HJK_b0010",
       "width": 96.0,
       "height": 201.0,
       "pX": 0.5,
@@ -3890,7 +3890,7 @@
       "plistFile": ""
     },
     {
-      "name": "LiZi/21_HJK_b0011",
+      "name": "21_HJK_b0011",
       "width": 96.0,
       "height": 201.0,
       "pX": 0.5,
@@ -3898,7 +3898,7 @@
       "plistFile": ""
     },
     {
-      "name": "LiZi/21_HJK_b0012",
+      "name": "21_HJK_b0012",
       "width": 96.0,
       "height": 201.0,
       "pX": 0.5,
@@ -3906,7 +3906,7 @@
       "plistFile": ""
     },
     {
-      "name": "LiZi/21_HJK_b0013",
+      "name": "21_HJK_b0013",
       "width": 96.0,
       "height": 201.0,
       "pX": 0.5,
@@ -3914,7 +3914,7 @@
       "plistFile": ""
     },
     {
-      "name": "LiZi/21_HJK_b0014",
+      "name": "21_HJK_b0014",
       "width": 96.0,
       "height": 201.0,
       "pX": 0.5,
@@ -3922,7 +3922,7 @@
       "plistFile": ""
     },
     {
-      "name": "LiZi/21_HJK_b0015",
+      "name": "21_HJK_b0015",
       "width": 96.0,
       "height": 201.0,
       "pX": 0.5,
@@ -3930,7 +3930,7 @@
       "plistFile": ""
     },
     {
-      "name": "LiZi/21_HJK_b0016",
+      "name": "21_HJK_b0016",
       "width": 96.0,
       "height": 201.0,
       "pX": 0.5,
@@ -3938,7 +3938,7 @@
       "plistFile": ""
     },
     {
-      "name": "LiZi/21_HJK_b0017",
+      "name": "21_HJK_b0017",
       "width": 96.0,
       "height": 201.0,
       "pX": 0.5,
@@ -3946,7 +3946,7 @@
       "plistFile": ""
     },
     {
-      "name": "LiZi/21_HJK_b0018",
+      "name": "21_HJK_b0018",
       "width": 96.0,
       "height": 201.0,
       "pX": 0.5,
@@ -3954,7 +3954,7 @@
       "plistFile": ""
     },
     {
-      "name": "LiZi/21_HJK_b0019",
+      "name": "21_HJK_b0019",
       "width": 96.0,
       "height": 201.0,
       "pX": 0.5,
@@ -3962,7 +3962,7 @@
       "plistFile": ""
     },
     {
-      "name": "LiZi/21_HJK_b0020",
+      "name": "21_HJK_b0020",
       "width": 96.0,
       "height": 201.0,
       "pX": 0.5,
